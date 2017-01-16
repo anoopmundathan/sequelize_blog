@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var dateFormat = require('dateformat');
+var Article = require('../models').Article;
 
 function publishedAt() {
   return dateFormat(this.createdAt, "dddd, mmmm dS, yyyy, h:MM TT");
@@ -43,19 +44,14 @@ router.get('/', function(req, res, next) {
 
 /* POST create article. */
 router.post('/', function(req, res, next) {
-  var article = Object.assign({}, req.body, {
-    id: articles.length + 1,
-    publishedAt: publishedAt,
-    shortDescription: shortDescription
+  Article.create(req.body).then(function(article) {
+    res.redirect("/articles/" + article.id);  
   });
-  articles.push(article);
-
-  res.redirect("/articles/" + article.id);
 });
 
 /* Create a new article form. */
 router.get('/new', function(req, res, next) {
-  res.render("articles/new", {article: {}, title: "New Article"});
+  res.render("articles/new", {article: Article.build(), title: "New Article"});
 });
 
 /* Edit article form. */

@@ -1,11 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var dateFormat = require('dateformat');
 var Article = require('../models').Article;
 
 /* GET articles listing. */
 router.get('/', function(req, res, next) {
-  Article.findAll().then(function(articles) {
+  Article.findAll({order: [["createdAt", "DESC"]]}).then(function(articles) {
     res.render("articles/index", {articles: articles, title: "My Awesome Blog" });  
   });
 });
@@ -24,9 +23,11 @@ router.get('/new', function(req, res, next) {
 
 /* Edit article form. */
 router.get("/:id/edit", function(req, res, next){
-  var article = find(req.params.id);  
 
-  res.render("articles/edit", {article: article, title: "Edit Article"});
+  Article.findById(req.params.id).then(function(article) {
+    res.render("articles/edit", {article: article, title: "Edit Article"});
+  });
+
 });
 
 
@@ -47,12 +48,13 @@ router.get("/:id", function(req, res, next){
 
 /* PUT update article. */
 router.put("/:id", function(req, res, next){
-  var article = find(req.params.id);
-  article.title = req.body.title;
-  article.body = req.body.body;
-  article.author = req.body.author;
+
+  Article.findById(req.params.id).then(function(article) {
+    return article.update(req.body);
+  }).then(function(article) {
+    res.redirect("/articles/" + article.id);    
+  });
   
-  res.redirect("/articles/" + article.id);    
 });
 
 /* DELETE individual article. */

@@ -6,6 +6,8 @@ var Article = require('../models').Article;
 router.get('/', function(req, res, next) {
   Article.findAll({order: [["createdAt", "DESC"]]}).then(function(articles) {
     res.render("articles/index", {articles: articles, title: "My Awesome Blog" });  
+  }).catch(function(err) {
+    res.send(500);
   });
 });
 
@@ -13,6 +15,8 @@ router.get('/', function(req, res, next) {
 router.post('/', function(req, res, next) {
   Article.create(req.body).then(function(article) {
     res.redirect("/articles/" + article.id);  
+  }).catch(function(err) {
+    res.send(500);
   });
 });
 
@@ -26,6 +30,8 @@ router.get("/:id/edit", function(req, res, next){
 
   Article.findById(req.params.id).then(function(article) {
     res.render("articles/edit", {article: article, title: "Edit Article"});
+  }).catch(function(err) {
+    res.send(500);
   });
 
 });
@@ -34,6 +40,8 @@ router.get("/:id/edit", function(req, res, next){
 router.get("/:id/delete", function(req, res, next){
   Article.findById(req.params.id).then(function(article) {
     res.render("articles/delete", {article: article, title: "Delete Article"});
+  }).catch(function(err) {
+    res.send(500);
   });
 });
 
@@ -42,6 +50,8 @@ router.get("/:id/delete", function(req, res, next){
 router.get("/:id", function(req, res, next){
   Article.findById(req.params.id).then(function(article) {
     res.render("articles/show", {article: article, title: article.title});  
+  }).catch(function(err) {
+    res.send(500);
   });
 });
 
@@ -52,6 +62,8 @@ router.put("/:id", function(req, res, next){
     return article.update(req.body);
   }).then(function(article) {
     res.redirect("/articles/" + article.id);    
+  }).catch(function(err) {
+    res.send(500);
   });
   
 });
@@ -63,8 +75,10 @@ router.delete("/:id", function(req, res, next){
     return article.destroy();
   }).then(function() {
     res.redirect("/articles");  
+  }).catch(function(err) {
+    res.send(500);
   });
-  
+
 });
 
 

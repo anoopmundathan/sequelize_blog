@@ -16,6 +16,16 @@ router.post('/', function(req, res, next) {
   Article.create(req.body).then(function(article) {
     res.redirect("/articles/" + article.id);  
   }).catch(function(err) {
+    if(err.name === "SequelizeValidationError") {
+      res.render("articles/new", {
+        article: Article.build(req.body), 
+        title: "New Article",
+        errors: err.errors
+      });
+    } else {
+      throw err;
+    }
+  }).catch(function(err) {
     res.send(500);
   });
 });
@@ -29,7 +39,13 @@ router.get('/new', function(req, res, next) {
 router.get("/:id/edit", function(req, res, next){
 
   Article.findById(req.params.id).then(function(article) {
-    res.render("articles/edit", {article: article, title: "Edit Article"});
+    
+    if(article) {
+      res.render("articles/edit", {article: article, title: "Edit Article"});  
+    } else {
+      res.send(404);
+    }
+    
   }).catch(function(err) {
     res.send(500);
   });
@@ -39,7 +55,13 @@ router.get("/:id/edit", function(req, res, next){
 /* Delete article form. */
 router.get("/:id/delete", function(req, res, next){
   Article.findById(req.params.id).then(function(article) {
-    res.render("articles/delete", {article: article, title: "Delete Article"});
+
+    if(article) {
+      res.render("articles/delete", {article: article, title: "Delete Article"});
+    } else {
+      res.send(404);
+    }
+    
   }).catch(function(err) {
     res.send(500);
   });
@@ -49,7 +71,13 @@ router.get("/:id/delete", function(req, res, next){
 /* GET individual article. */
 router.get("/:id", function(req, res, next){
   Article.findById(req.params.id).then(function(article) {
-    res.render("articles/show", {article: article, title: article.title});  
+    
+    if(article) {
+      res.render("articles/show", {article: article, title: article.title});    
+    } else {
+      res.send(404);
+    }
+    
   }).catch(function(err) {
     res.send(500);
   });
@@ -59,9 +87,28 @@ router.get("/:id", function(req, res, next){
 router.put("/:id", function(req, res, next){
 
   Article.findById(req.params.id).then(function(article) {
-    return article.update(req.body);
+    if(article) {
+      return article.update(req.body);  
+    } else {
+      res.send(404);
+    }
+    
   }).then(function(article) {
-    res.redirect("/articles/" + article.id);    
+    res.redirect("/articles/" + article.id);  
+  }).catch(function(err) {
+    if(err.name === "SequelizeValidationError") {
+       
+       var article = Article.build(req.body);
+       article.id = req.params.id;
+
+       res.render("articles/edit", {
+        article: article, 
+        title: "Edit Article",
+        errors: err.errors
+      });  
+    } else {
+
+    }
   }).catch(function(err) {
     res.send(500);
   });
@@ -72,7 +119,11 @@ router.put("/:id", function(req, res, next){
 router.delete("/:id", function(req, res, next){
 
   Article.findById(req.params.id).then(function(article) {
-    return article.destroy();
+    if(article) {
+      return article.destroy();  
+    } else {
+      res.send(404);
+    }
   }).then(function() {
     res.redirect("/articles");  
   }).catch(function(err) {

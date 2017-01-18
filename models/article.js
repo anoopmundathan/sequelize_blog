@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
         notEmpty: {
           msg: "Title is required"
         }
-      },
+      }
     },
     author: DataTypes.STRING,
     body: DataTypes.TEXT

@@ -16,6 +16,7 @@ router.post('/', function(req, res, next) {
   Article.create(req.body).then(function(article) {
     res.redirect("/articles/" + article.id);  
   }).catch(function(err) {
+
     if(err.name === "SequelizeValidationError") {
       res.render("articles/new", {
         article: Article.build(req.body), 
@@ -92,27 +93,19 @@ router.put("/:id", function(req, res, next){
     } else {
       res.send(404);
     }
-    
   }).then(function(article) {
     res.redirect("/articles/" + article.id);  
   }).catch(function(err) {
-    if(err.name === "SequelizeValidationError") {
-       
+    if(err.name === "SequelizeValidationError") { 
        var article = Article.build(req.body);
        article.id = req.params.id;
-
-       res.render("articles/edit", {
-        article: article, 
-        title: "Edit Article",
-        errors: err.errors
-      });  
+       res.render("articles/edit", {article: article, title: "Edit Article",errors: err.errors});  
     } else {
-
+      throw error;
     }
   }).catch(function(err) {
     res.send(500);
   });
-  
 });
 
 /* DELETE individual article. */
